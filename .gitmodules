@@ -1,0 +1,3 @@
+[submodule "imp_core"]
+	path = imp_core
+	url = https://github.com/Buttsgroup/imp_core.git
