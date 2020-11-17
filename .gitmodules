@@ -5,4 +5,4 @@
 [submodule "mol_translator"]
 	path = mol_translator
 	url = https://github.com/Buttsgroup/mol_translator.git
-	branch = master
+	branch = web_stable
