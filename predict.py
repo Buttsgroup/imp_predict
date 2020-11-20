@@ -9,8 +9,8 @@ import mol_translator.imp_converter.dataframe_prep as df_prep
 import mol_translator.imp_converter.dataframe_write as df_write
 import mol_translator.imp_converter.dataframe_read as df_read
 
-from model.fchl_model import FCHLmodel
-import model.features.fchl_input as fchl
+from model.gtn_model import GTNmodel
+import model.features.graph_input as graph_in
 
 import glob
 import numpy as np
@@ -20,7 +20,7 @@ import time
 
 def convert_mols():
     
-    files = glob.glob("INPUT/*")
+    files = glob.glob("INPUT/*")[:2]
     mols = []
     
     print('Getting files to predict. . .')
@@ -38,28 +38,30 @@ def convert_mols():
         mols.append(aemol)
 
     atom_df = df_write.make_atom_df(mols)
-    atom_df = fchl.add_fchl_to_atom_df(atom_df)
     pair_df = df_write.make_pair_df(mols, max_bond_distance=6)
+    
+    mol_df, graphs = graph_in.make_graph_df(atom_df, pair_df)
     
     return atom_df, pair_df
     
 def predict_from_model(atom_df, pair_df):
     
-    for target in ['HCS', 'CCS', '1JCH']:
+    for target in ['HCS', 'CCS']:
     
         print('Predicting: ', target)
     
-        modelfile = 'MODEL/fchl_set4_' + target + '.pkl'
+        modelfile = 'MODEL/' + target + '_model.torch'
         
-        model = FCHLmodel()
+        model = GTNmodel()
         model.load_model(modelfile)
         
-        test_x, _ = model.get_input(atom_df, pair_df)
-        pred_y = model.predict(test_x)
+        test_loader = model.get_input(atom_df, pair_df)
+        pred_graphs = model.predict(test_loader)
         
         #atom_df, pair_df = model.assign_preds(pred_y, atom_df, pair_df, assign_to="")
         
         # variance predictions:
+        '''
         cv_models = glob.glob('MODEL/fchl_set4_' + target + '_cv*.pkl')
         if len(cv_models) == 0:
             cv_pred = np.zeros(len(pred_y))
@@ -73,9 +75,8 @@ def predict_from_model(atom_df, pair_df):
                 test_x, _ = cvmodel.get_input(atom_df, pair_df)
                 cv_pred_y.append(cvmodel.predict(test_x))
             cv_pred = np.var(cv_pred_y, 0)
-        atom_df, pair_df = model.assign_preds(pred_y, atom_df, pair_df, assign_to="", variance=cv_pred)
-
-        
+        '''
+        atom_df, pair_df = model.assign_preds(graphs_out, atom_df, pair_df, assign_to="")
 
     return atom_df, pair_df
     
