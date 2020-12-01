@@ -46,7 +46,7 @@ def convert_mols():
     
 def predict_from_model(atom_df, pair_df):
     
-    for target in ['HCS', 'CCS']:
+    for target in ['ic50']:
     
         print('Predicting: ', target)
     
@@ -76,7 +76,7 @@ def predict_from_model(atom_df, pair_df):
                 cv_pred_y.append(cvmodel.predict(test_x))
             cv_pred = np.var(cv_pred_y, 0)
         '''
-        atom_df, pair_df = model.assign_preds(graphs_out, atom_df, pair_df, assign_to="")
+        atom_df, pair_df = model.assign_preds(graphs_out, atom_df, pair_df, assign_to="predicted_")
 
     return atom_df, pair_df
     

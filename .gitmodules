@@ -1,7 +1,7 @@
 [submodule "imp_core"]
 	path = imp_core
 	url = https://github.com/Buttsgroup/imp_core.git
-	branch = gtn
+	branch = gtn_FEP
 [submodule "mol_translator"]
 	path = mol_translator
 	url = https://github.com/Buttsgroup/mol_translator.git
