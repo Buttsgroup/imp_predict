@@ -1,7 +1,11 @@
-[submodule "imp_core"]
-	path = imp_core
+[submodule "imp_core1"]
+	path = imp_core1
 	url = https://github.com/Buttsgroup/imp_core.git
 	branch = gtn
+[submodule "imp_core2"]
+	path = imp_core2
+	url = https://github.com/Buttsgroup/imp_core.git
+	branch = gtn_tfr
 [submodule "mol_translator"]
 	path = mol_translator
 	url = https://github.com/Buttsgroup/mol_translator.git
