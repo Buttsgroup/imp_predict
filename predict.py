@@ -21,9 +21,6 @@ import time
 def convert_mols():
     
     files = glob.glob("INPUT/*")
-    # shortcut for doing DT3 predictions
-    # DONT COMMIT THIS !!!
-    files = glob.glob("/Users/willgerrard/code/bg_code/datasets/Data3/Data3_nmredata/*.sdf")
     mols = []
     
     print('Getting files to predict. . .')
