@@ -5,7 +5,8 @@ python setup_pred.py
 conda deactivate
 source activate imp_core_v2.0
 echo Making predictions ...
-python do_predict.py
+python do_predict_STG1.py
+python do_predict_STG2.py
 conda deactivate
 source activate imp_io_v2.0
 echo Converting output molecules ...

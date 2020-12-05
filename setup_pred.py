@@ -22,7 +22,7 @@ def convert_mols():
     files = glob.glob("INPUT/*")[:2]
     # shortcut for doing DT3 predictions
     # DONT COMMIT THIS !!!
-    files = glob.glob("/Users/willgerrard/code/bg_code/datasets/Data3/Data3_nmredata/*.sdf")
+    files = glob.glob("/Users/willgerrard/code/bg_code/datasets/Data3/Data3_nmredata/*.sdf")[:5]
     mols = []
     
     print('Getting files to predict. . .')
