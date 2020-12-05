@@ -1,6 +1,7 @@
 MODEL/*
 INPUT/*
 OUTPUT/*
+tmp/*
 
 
 # Byte-compiled / optimized / DLL files
