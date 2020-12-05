@@ -1,5 +1,8 @@
 
 import sys
+import pytest
+import os
+
 sys.path.append('./mol_translator/')
 sys.path.append('./imp_core/')
 
@@ -86,34 +89,33 @@ def output_mols(atom_df, pair_df):
         outfile = "OUTPUT/" + str(aemol.info['molid']) + '.nmredata.sdf'
         aemol.prop_tofile(outfile, prop='nmr', format='nmredata')
 
-
-if __name__ == "__main__":
+def predict():
     time0 = time.time()
     atom_df, pair_df = convert_mols()
     atom_df, pair_df = predict_from_model(atom_df, pair_df)
     output_mols(atom_df, pair_df)
-    print('Total time taken: ', (time.time()-time0)/60, ' minutes.')
-    
+    print('Total time taken: ', (time.time() - time0) / 60, ' minutes.')
+
     ## Potential code for continual processing ?
     ## Let me know what you think max. . .
     ## Essentially keep running if there are IDs in input, which aren't in output
     '''
     max_runs = 5
     run = 0
-    
+
     input_ids = [file.split('/')[-1].split('.')[0] for file in glob.glob('INPUT/*')]
     output_ids = [file.split('/')[-1].split('.')[0] for file in glob.glob('OUTPUT/*')]
     condition = False
     for id_in in input_ids:
         if id_in not in output_ids:
             condition = True
-            
+
     while condition:
         run += 1
         atom_df, pair_df = convert_mols()
         atom_df, pair_df = predict_from_model(atom_df, pair_df)
         output_mols(atom_df, pair_df)
-        
+
         input_ids = [file.split('/')[-1].split('.')[0] for file in glob.glob('INPUT/*')]
         output_ids = [file.split('/')[-1].split('.')[0] for file in glob.glob('OUTPUT/*')]
         condition = False
@@ -122,5 +124,11 @@ if __name__ == "__main__":
                 condition = True
         if run >= max_runs:
             condition = False
-    
+
     '''
+
+
+if __name__ == "__main__":
+    predict()
+
+
