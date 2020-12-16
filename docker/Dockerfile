@@ -3,14 +3,22 @@ SHELL [ "/bin/bash", "-c"]
 RUN apt-get update \
   && apt-get install -y wget \
   && apt-get install -y git \
+  && apt-get install -y gfortran libblas-dev liblapack-dev \
+  && apt-get install -y vim \
   && rm -rf /var/lib/apt/lists/*
 
-COPY docker/environment.yml docker/requirements.txt /tmp/
-COPY docker/postBuild /usr/local/bin/postBuild.sh
-COPY docker/entrypoint.sh /usr/local/bin/
+# Copy gcloud related tooling to root/tmp
+COPY tooling/requirements.txt /tmp/
+COPY imp_predict/make_imp_io_env.sh /usr/local/bin/
+COPY imp_predict/make_imp_core_env.sh /usr/local/bin/
+RUN echo "pip install -r /tmp/requirements.txt --user -U" >> /usr/local/bin/make_imp_io_env.sh
+RUN echo "pip install -r /tmp/requirements.txt --user -U" >> /usr/local/bin/make_imp_core_env.sh
+COPY tooling/entrypoint.sh /usr/local/bin/
 RUN chmod u+x /usr/local/bin/entrypoint.sh
 
-#COPY autoenrich /autoenrich # Dont need this anymore
+ENV PYTHONPATH "${PYTHONPATH}:/"
+COPY tooling /tooling
+COPY imp_predict/predict.sh /predict.sh
 
 RUN mkdir /INPUT /MODEL /OUTPUT
 # install miniconda
@@ -27,32 +35,13 @@ RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile
 # make conda activate command available from /bin/bash --interative shells
 RUN conda init bash
 
-# create a project directory inside user home
-ENV PROJECT_DIR $HOME/app
-RUN mkdir $PROJECT_DIR
-WORKDIR $PROJECT_DIR
-
 # build the conda environment
-ENV ENV_PREFIX v1.0
-RUN bash make_conda_env.sh $ENV_PREFIX
-'''
-RUN conda update --name base --channel defaults conda && \
-    conda env create --prefix $ENV_PREFIX --file /tmp/environment.yml --force && \
-    conda clean --all --yes
-'''
-# run the postBuild script to install any JupyterLab extensions
-RUN source activate imp_predictor_$ENV_PREFIX && \
-  #  /usr/local/bin/postBuild.sh && \
-    conda deactivate
+RUN bash /usr/local/bin/make_imp_io_env.sh && bash /usr/local/bin/make_imp_core_env.sh
 
+# COPY PACKAGES
+COPY imp_predict/imp_core /imp_core
+COPY imp_predict/mol_translator /mol_translator
 
-RUN apt-get install git
-# This might cause a problem because imp_core is private,
-# this would pull the most recent commit from the branch at runtime, maybe overkill
-# can just do this manually when needed
-RUN git submodule update --remote
-
-# COPY predict_from_model.py /predict_from_model.py ## dont think we need this anymore, script is in repo
 # -------------------
 # GCLOUD RUN SPECIFIC
 # -------------------
@@ -64,15 +53,10 @@ RUN if [[ -z "$SERVICE_KEY_FILE" ]] ; \
 COPY ./$SERVICE_KEY_FILE /service-acc-key.json
 ENV GOOGLE_APPLICATION_CREDENTIALS /service-acc-key.json
 
-COPY gcloud_imp_tools /gcloud_imp_tools
-COPY download_pickles.py /download_pickles.py
-COPY pre_predict.py /pre_predict.py
-COPY post_predict.py /post_predict.py
-
 WORKDIR /
 
-RUN source activate $ENV_PREFIX && \
-    python /download_pickles.py \
+RUN source activate imp_io && \
+    python /tooling/download_pickles.py \
     conda deactivate
 
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
