@@ -1,5 +1,5 @@
 source activate imp_io
-mkdir tmp
+mkdir -p tmp
 echo Converting input molecules ...
 python setup_pred.py
 # Read exit status and attempt to exit if not 0
