@@ -4,13 +4,21 @@ RUN apt-get update \
   && apt-get install -y wget \
   && apt-get install -y git \
   && apt-get install -y gfortran libblas-dev liblapack-dev \
+  && apt-get install -y vim \
   && rm -rf /var/lib/apt/lists/*
 
 # Copy gcloud related tooling to root/tmp
-COPY make_conda_env.sh /usr/local/bin/
+COPY tooling/requirements.txt /tmp/
+COPY imp_predict/make_imp_io_env.sh /usr/local/bin/
+COPY imp_predict/make_imp_core_env.sh /usr/local/bin/
+RUN echo "pip install -r /tmp/requirements.txt --user -U" >> /usr/local/bin/make_imp_io_env.sh
+RUN echo "pip install -r /tmp/requirements.txt --user -U" >> /usr/local/bin/make_imp_core_env.sh
+COPY tooling/entrypoint.sh /usr/local/bin/
 RUN chmod u+x /usr/local/bin/entrypoint.sh
 
-COPY imp_predict/predict.py /predict.py
+ENV PYTHONPATH "${PYTHONPATH}:/"
+COPY tooling /tooling
+COPY imp_predict/predict.sh /predict.py
 
 RUN mkdir /INPUT /MODEL /OUTPUT
 # install miniconda
@@ -28,11 +36,27 @@ RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile
 RUN conda init bash
 
 # build the conda environment
-ENV ENV_PREFIX v1.0
-RUN bash /usr/local/bin/make_conda_env.sh $ENV_PREFIX
+RUN bash /usr/local/bin/make_imp_io_env.sh && bash /usr/local/bin/make_imp_core_env.sh
 
 # COPY PACKAGES
 COPY imp_predict/imp_core /imp_core
 COPY imp_predict/mol_translator /mol_translator
 
+# -------------------
+# GCLOUD RUN SPECIFIC
+# -------------------
+ARG SERVICE_KEY_FILE
+RUN echo $SERVICE_KEY_FILE
+RUN if [[ -z "$SERVICE_KEY_FILE" ]] ; \
+ then echo "No service account key file in local context specified" ; exit 1 ; fi
+
+COPY ./$SERVICE_KEY_FILE /service-acc-key.json
+ENV GOOGLE_APPLICATION_CREDENTIALS /service-acc-key.json
+
 WORKDIR /
+
+RUN source activate imp_predictor && \
+    python /tooling/download_pickles.py \
+    conda deactivate
+
+ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
