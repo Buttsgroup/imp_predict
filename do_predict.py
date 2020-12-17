@@ -28,11 +28,11 @@ def predict_from_model(atom_df, pair_df):
 
         if len(test_x) == 0:
             print('No input environments made, nothing to do')
-            return 4
+            continue
         pred_y = model.predict(test_x)
         if len(pred_y) == 0:
             print('No predictions made, nothing to do')
-            return 4
+            continue
         
         #atom_df, pair_df = model.assign_preds(pred_y, atom_df, pair_df, assign_to="")
         
