@@ -8,21 +8,18 @@ import glob
 import numpy as np
 import pandas as pd
 
-import pickle
-
-import tqdm
-import time
-
 from datetime import datetime
 
+
 def get_time():
-    return datetime.now().strftime("%m/%d/%Y::%H:%M:%S")
+    return datetime.now().strftime("%d/%m/%Y::%H:%M:%S")
+
 
 def predict_from_model(atom_df, pair_df):
     
     for target in ['HCS', 'CCS', '1JCH']:
     
-        print('Predicting: ', target)
+        print(get_time(), 'Predicting: ', target)
     
         modelfile = 'MODEL/fchl_set4_' + target + '.pkl'
         
@@ -67,7 +64,7 @@ def predict_from_model(atom_df, pair_df):
         else:
             cv_pred_y = []
             for cvmodelfile in cv_models:
-                print('Making variance predictions: ', cvmodelfile)
+                print(get_time(), 'Making variance predictions: ', cvmodelfile)
                 try:
                     cvmodel = FCHLmodel()
                     cvmodel.load_model(cvmodelfile)

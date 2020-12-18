@@ -9,18 +9,15 @@ RUN apt-get update \
 
 # Copy gcloud related tooling to root/tmp
 COPY tooling/requirements.txt /tmp/
-COPY imp_predict/make_imp_io_env.sh /usr/local/bin/
-COPY imp_predict/make_imp_core_env.sh /usr/local/bin/
-RUN echo "pip install -r /tmp/requirements.txt --user -U" >> /usr/local/bin/make_imp_io_env.sh
-RUN echo "pip install -r /tmp/requirements.txt --user -U" >> /usr/local/bin/make_imp_core_env.sh
+COPY imp_predict/make_conda_env.sh /usr/local/bin/
+COPY tooling/make_gcloud_conda_env.sh /usr/local/bin/
 COPY tooling/entrypoint.sh /usr/local/bin/
 RUN chmod u+x /usr/local/bin/entrypoint.sh
 
 ENV PYTHONPATH "${PYTHONPATH}:/"
 COPY tooling /tooling
-COPY imp_predict/predict.sh /predict.sh
-
-RUN mkdir /INPUT /MODEL /OUTPUT
+COPY imp_predict/predict.sh imp_predict/do_predict.py imp_predict/setup_pred.py imp_predict/output_pred.py /
+RUN mkdir /INPUT /MODEL /OUTPUT && chmod +x /predict.sh
 # install miniconda
 ENV MINICONDA_VERSION 4.8.2
 ENV CONDA_DIR $HOME/miniconda3
@@ -35,8 +32,9 @@ RUN echo ". $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.profile
 # make conda activate command available from /bin/bash --interative shells
 RUN conda init bash
 
-# build the conda environment
-RUN bash /usr/local/bin/make_imp_io_env.sh && bash /usr/local/bin/make_imp_core_env.sh
+# build the conda environments (imp_*_v?.?, imp_gcloud)
+ENV _VERSION="v1.0"
+RUN bash /usr/local/bin/make_conda_env.sh ${_VERSION} && bash /usr/local/bin/make_gcloud_conda_env.sh
 
 # COPY PACKAGES
 COPY imp_predict/imp_core /imp_core
@@ -55,7 +53,7 @@ ENV GOOGLE_APPLICATION_CREDENTIALS /service-acc-key.json
 
 WORKDIR /
 
-RUN source activate imp_io && \
+RUN source activate imp_gcloud && \
     python /tooling/download_pickles.py \
     conda deactivate
 
