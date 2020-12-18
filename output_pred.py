@@ -9,6 +9,10 @@ import mol_translator.imp_converter.dataframe_write as df_write
 import mol_translator.imp_converter.dataframe_read as df_read
 
 import pandas as pd
+from datetime import datetime
+
+def get_time():
+    return datetime.now().strftime("%m/%d/%Y::%H:%M:%S")
 
 def output_mols(atom_df, pair_df):
     print('Outputting molecules. . .')
