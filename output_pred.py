@@ -12,15 +12,30 @@ import pandas as pd
 
 def output_mols(atom_df, pair_df):
     print('Outputting molecules. . .')
-    mols = df_read.read_df(atom_df, pair_df)
+    try:
+        mols = df_read.read_df(atom_df, pair_df)
+    except Exception as e:
+        print(get_time(), 'Error outputting molecules')
+        print(get_time(), 'Error getting molecules from dataframes into aemol objects', e, e.__traceback__, file=sys.stderr)
+        exit(4)
     if len(mols) == 0:
-        print('No mols to process, nothing to do')
-        return 4
+        print(get_time(), 'No molecules output, nothing to do')
+        exit(4)
     for aemol in mols:
         outfile = "OUTPUT/" + str(aemol.info['molid']) + '.nmredata.sdf'
-        aemol.prop_tofile(outfile, prop='nmr', format='nmredata')
+        try:
+            aemol.prop_tofile(outfile, prop='nmr', format='nmredata')
+        except Exception as e:
+            print(get_time(), 'Error making nmredata file, ' , aemol.info['molid'])
+            print(get_time(), 'Error making nmredata file, ' , aemol.info['molid'], e, e.__traceback__, file=sys.stderr)
     
 if __name__ == "__main__":
-    atom_df = pd.read_pickle("tmp/POST_atoms.pkl")
-    pair_df = pd.read_pickle("tmp/POST_pairs.pkl")
+    try:
+        atom_df = pd.read_pickle("tmp/POST_atoms.pkl")
+        pair_df = pd.read_pickle("tmp/POST_pairs.pkl")
+    except:
+        print(get_time(), 'Error reading dataframes from prediction output')
+        print(get_time(), 'Error reading dataframes from prediction output', e, e.__traceback__, file=sys.stderr)
+        exit(4)
     output_mols(atom_df, pair_df)
+    print(get_time(), 'Done.')
