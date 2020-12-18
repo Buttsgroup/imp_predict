@@ -11,11 +11,13 @@ import mol_translator.imp_converter.dataframe_read as df_read
 import pandas as pd
 from datetime import datetime
 
+
 def get_time():
-    return datetime.now().strftime("%m/%d/%Y::%H:%M:%S")
+    return datetime.now().strftime("%d/%m/%Y::%H:%M:%S")
+
 
 def output_mols(atom_df, pair_df):
-    print('Outputting molecules. . .')
+    print(get_time(), 'Outputting molecules. . .')
     try:
         mols = df_read.read_df(atom_df, pair_df)
     except Exception as e:
