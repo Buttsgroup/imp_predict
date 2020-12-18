@@ -1,3 +1,7 @@
+if [[ -z "$_VERSION" ]]
+then
+  _VERSION="v1.0"
+fi
 source activate imp_io"_${_VERSION}"
 mkdir -p tmp
 echo Converting input molecules ...
