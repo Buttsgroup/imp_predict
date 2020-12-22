@@ -1,5 +1,3 @@
-
-
 import sys
 sys.path.append('./mol_translator/')
 
@@ -9,8 +7,6 @@ import mol_translator.imp_converter.dataframe_prep as df_prep
 import mol_translator.imp_converter.dataframe_write as df_write
 import mol_translator.imp_converter.dataframe_read as df_read
 
-import pandas as pd
-import pickle
 
 from datetime import datetime
 
