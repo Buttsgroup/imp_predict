@@ -28,9 +28,10 @@ def convert_mols():
     print(get_time(), ': Getting files to predict. . .')
     for file in files:
         ID = file.split('/')[-1].split('.')[0]
-        format = file.split('/')[-1].split('.')[1]
+        format = file.split('/')[-1].split('.')[-1]
         if format == 'nmredata':
             format = 'sdf'
+
         print(get_time(), file, ID)
         try:
             aemol = _aemol(ID)
