@@ -19,7 +19,7 @@ import time
 
 def convert_mols():
     
-    files = glob.glob("INPUT/*")[:2]
+    files = glob.glob("INPUT/*")
     mols = []
     
     print('Getting files to predict. . .')
@@ -29,6 +29,9 @@ def convert_mols():
         format = file.split('/')[-1].split('.')[1]
         if format == 'nmredata':
             format = 'sdf'
+        if format == 'log':
+            print('unknown format, i think this is a gaussian log file')
+            format = 'g09'
         
         aemol = _aemol(ID)
         aemol.from_file(file, format)
