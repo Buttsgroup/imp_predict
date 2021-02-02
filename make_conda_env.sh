@@ -7,6 +7,7 @@ else
   echo "missing version argument, v1.0 set as default"
   version="v1.0"
 fi
+version=v1.0
 
 conda env remove -n imp_core_"${version}"
 conda create -n imp_core_"${version}" python=3 -y
